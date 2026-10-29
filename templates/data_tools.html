@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Data tools{% endblock %}
+{% block content %}
+<section class="page-heading"><div><div class="eyebrow"><span class="eyebrow-dot"></span> YOUR JOURNAL, YOUR CONTROL</div><h1>Data <em>tools.</em></h1><p class="lead">Explore WellNest with sample entries or clear your own wellness journal and start fresh.</p></div></section>
+<div class="data-tools-grid">
+  <section class="surface data-tool-card demo-tool"><span class="tool-symbol">✦</span><span class="eyebrow">EXPLORE THE APP</span><h2>Load sample data</h2><p>Adds two weeks of example weight, sleep, water, exercise, mood and energy entries, plus one sample follow-up. It also adds example goals if you have not set any. Sample data only loads when your journal is empty.</p><form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="demo"><button class="button button-primary">Load demo data</button></form></section>
+  <section class="surface data-tool-card reset-tool"><span class="tool-symbol">↺</span><span class="eyebrow">START FRESH</span><h2>Reset wellness data</h2><p>Deletes your check-ins, mood reflections, appointments and personal goals from this account. Your account and sign-in stay active. This cannot be undone.</p><form method="post" onsubmit="return confirm('Reset all your wellness records, appointments, reflections, and goals? Your account will remain active. This cannot be undone.')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="reset"><button class="button button-danger">Reset my data</button></form></section>
+</div>
+<section class="surface data-note"><span class="note-mark">i</span><div><h2>About sample entries</h2><p>Sample entries are fictional and are only for trying the dashboard and charts. They are not health guidance or real measurements. Reset your wellness data before entering your own records if you loaded the samples.</p></div></section>
+{% endblock %}

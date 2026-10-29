@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Records{% endblock %}
+{% block content %}
+<section class="page-heading records-heading"><div><div class="eyebrow"><span class="eyebrow-dot"></span> YOUR PRIVATE JOURNAL</div><h1>Everything you’ve <em>logged.</em></h1><p class="lead">Your check-ins, in one place. Only you can see them.</p></div><a class="button button-primary" href="{{ url_for('log_entry') }}">＋ New check-in</a></section>
+<form method="get" class="filter-bar"><div><label>From<input type="date" name="start" value="{{ start }}"></label><label>To<input type="date" name="end" value="{{ end }}"></label></div><div class="filter-actions"><button class="button button-outline">Filter</button><a class="button button-ghost" href="{{ url_for('export_csv') }}">Download CSV ↓</a></div></form>
+<section class="surface records-surface">
+{% if rows %}
+<div class="table-scroll"><table><thead><tr><th>Date</th><th>Weight</th><th>Sleep</th><th>Water</th><th>Movement</th><th>Calories</th><th></th></tr></thead><tbody>
+{% for row in rows %}<tr><td class="table-date">{{ row.entry_date.strftime('%b %d, %Y') }}</td><td>{{ '%.1f kg'|format(row.weight_kg) if row.weight_kg == row.weight_kg else '—' }}</td><td>{{ '%.1f h'|format(row.sleep_h) if row.sleep_h == row.sleep_h else '—' }}</td><td>{{ '%.1f L'|format(row.water_l) if row.water_l == row.water_l else '—' }}</td><td>{{ (row.exercise_type or 'Movement') ~ ' · ' ~ ('%.0f min'|format(row.exercise_min)) if row.exercise_min == row.exercise_min and row.exercise_min > 0 else '—' }}</td><td>{{ '%.0f kcal'|format(row.calories) if row.calories == row.calories else '—' }}</td><td><a class="table-edit" href="{{ url_for('edit_entry', entry_id=row.id) }}">Edit ↗</a></td></tr>{% endfor %}
+</tbody></table></div><div class="table-foot">{{ rows|length }} record{{ '' if rows|length == 1 else 's' }} in this date range</div>
+{% else %}<div class="empty-state"><span class="empty-icon">✳</span><h2>Your records will collect here.</h2><p>There are no entries in this date range yet.</p><a class="button button-primary" href="{{ url_for('log_entry') }}">Add a check-in →</a></div>{% endif %}
+</section>
+{% endblock %}

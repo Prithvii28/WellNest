@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ action }}{% endblock %}
+{% block content %}
+<div class="form-page">
+  <a class="back-link" href="{{ url_for('home') }}">← Back to overview</a>
+  <div class="form-heading"><div class="eyebrow"><span class="eyebrow-dot"></span> YOUR WELLNESS JOURNAL</div><h1>{{ action }}<em>.</em></h1><p>Log only what feels useful today. Every field is optional.</p></div>
+  <form method="post" class="entry-card">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-section-title"><span class="step-number">01</span><div><h2>Choose your day</h2><p>One check-in per date. You can edit it later.</p></div></div>
+    <label class="field-label">Date<input type="date" name="entry_date" value="{{ entry.entry_date if entry else today.isoformat() }}" max="{{ today.isoformat() }}" required></label>
+    <div class="form-section-title section-divider"><span class="step-number">02</span><div><h2>How are you feeling?</h2><p>These details are for your own tracking only.</p></div></div>
+    <div class="field-grid">
+      <label class="field-label">Weight <span class="unit">kg</span><input type="number" name="weight_kg" min="20" max="400" step="0.1" value="{{ entry.weight_kg if entry and entry.weight_kg is not none else '' }}" placeholder="e.g. 68.5"></label>
+      <label class="field-label">Sleep <span class="unit">hours</span><input type="number" name="sleep_h" min="0" max="24" step="0.1" value="{{ entry.sleep_h if entry and entry.sleep_h is not none else '' }}" placeholder="e.g. 7.5"></label>
+      <label class="field-label">Water <span class="unit">litres</span><input type="number" name="water_l" min="0" max="30" step="0.1" value="{{ entry.water_l if entry and entry.water_l is not none else '' }}" placeholder="e.g. 2.0"></label>
+      <label class="field-label">Exercise <span class="unit">minutes</span><input type="number" name="exercise_min" min="0" max="1000" step="1" value="{{ entry.exercise_min if entry and entry.exercise_min is not none else '' }}" placeholder="e.g. 30"></label>
+      <label class="field-label field-span">Movement type <span class="unit">optional</span><input type="text" name="exercise_type" maxlength="60" value="{{ entry.exercise_type if entry and entry.exercise_type else '' }}" placeholder="Walk, yoga, cycling..."></label>
+      <label class="field-label">Calories <span class="unit">kcal · optional</span><input type="number" name="calories" min="0" max="20000" step="1" value="{{ entry.calories if entry and entry.calories is not none else '' }}" placeholder="Only if you track these"></label>
+    </div>
+    <div class="form-actions"><a class="button button-ghost" href="{{ url_for('records') if entry else url_for('home') }}">Cancel</a><button class="button button-primary" type="submit">Save check-in <span>→</span></button></div>
+  </form>
+  {% if entry %}<form class="delete-entry" method="post" action="{{ url_for('delete_entry', entry_id=entry.id) }}" onsubmit="return confirm('Delete this check-in? This cannot be undone.');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="text-danger">Delete this entry</button><span>Only this individual record will be removed.</span></form>{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Care planner{% endblock %}
+{% block content %}
+<section class="page-heading"><div><div class="eyebrow"><span class="eyebrow-dot"></span> KEEP YOUR CARE ORGANIZED</div><h1>A little more <em>prepared.</em></h1><p class="lead">Keep personal appointments and follow-ups in one private place. WellNest does not send notifications, so add reminders to your device calendar too.</p></div></section>
+<div class="feature-grid care-grid">
+  <section class="surface feature-form"><div class="section-heading"><div><span class="eyebrow">NEW APPOINTMENT</span><h2>Plan a visit or follow-up</h2></div><span class="feature-icon">＋</span></div>
+    <form method="post" class="feature-stack"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label class="field-label">Appointment title<input type="text" name="title" maxlength="100" placeholder="e.g. Dentist check-up" required></label>
+      <div class="field-grid"><label class="field-label">Date<input type="date" name="appointment_date" value="{{ today.isoformat() }}" required></label><label class="field-label">Time<input type="time" name="appointment_time" value="09:00" required></label></div>
+      <label class="field-label">Place or provider <span class="unit">optional</span><input type="text" name="location" maxlength="120" placeholder="Clinic, office, or online"></label>
+      <label class="field-label">Notes <span class="unit">optional</span><textarea name="notes" rows="3" maxlength="1000" placeholder="Questions to remember, documents to bring... "></textarea></label>
+      <button class="button button-primary">Add to care planner</button>
+    </form>
+  </section>
+  <section class="surface appointment-list"><div class="section-heading"><div><span class="eyebrow">YOUR PLANS</span><h2>Appointments & follow-ups</h2></div><span class="count-pill">{{ appointments|length }}</span></div>
+    {% if appointments %}<div class="appointment-stack">{% for item in appointments %}<article class="appointment-item {{ 'appointment-done' if item.status == 'done' else '' }}"><div class="appointment-date"><strong>{{ item.appointment_date[8:10] }}</strong><span>{{ item.appointment_date[5:7] }}/{{ item.appointment_date[:4] }}</span></div><div class="appointment-details"><div class="appointment-title-row"><h3>{{ item.title }}</h3><span class="status-pill {{ item.status }}">{{ 'Completed' if item.status == 'done' else 'Planned' }}</span></div><p>{{ item.appointment_time }}{% if item.location %} · {{ item.location }}{% endif %}</p>{% if item.notes %}<p class="appointment-notes">{{ item.notes }}</p>{% endif %}<div class="appointment-actions"><form method="post" action="{{ url_for('toggle_appointment', appointment_id=item.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="quiet-link">{{ 'Mark planned' if item.status == 'done' else 'Mark complete' }}</button></form><form method="post" action="{{ url_for('delete_appointment', appointment_id=item.id) }}" onsubmit="return confirm('Remove this appointment?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="quiet-link danger-link">Remove</button></form></div></div></article>{% endfor %}</div>{% else %}<div class="empty-state compact-empty"><span class="empty-icon">＋</span><h2>Nothing planned yet.</h2><p>Add an appointment or follow-up and it will be kept here.</p></div>{% endif %}
+  </section>
+</div>
+{% endblock %}

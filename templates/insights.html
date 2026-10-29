@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Insights{% endblock %}
+{% block content %}
+<section class="page-heading"><div><div class="eyebrow"><span class="eyebrow-dot"></span> YOUR PATTERNS, YOUR PACE</div><h1>Notice what <em>moves you.</em></h1><p class="lead">Simple summaries of your saved records. They’re here to help you reflect.</p></div></section>
+<form method="get" class="filter-bar"><div><label>From<input type="date" name="start" value="{{ start }}"></label><label>To<input type="date" name="end" value="{{ end }}"></label></div><button class="button button-outline">Update view</button></form>
+<section class="insight-stats">
+  <div><span>Records</span><strong>{{ summary.records }}</strong></div>
+  <div><span>Average weight</span><strong>{{ '%.1f kg'|format(summary.weight) if summary.weight is not none else '—' }}</strong></div>
+  <div><span>Average sleep</span><strong>{{ '%.1f h'|format(summary.sleep) if summary.sleep is not none else '—' }}</strong></div>
+  <div><span>Average water</span><strong>{{ '%.1f L'|format(summary.water) if summary.water is not none else '—' }}</strong></div>
+  <div><span>Movement total</span><strong>{{ '%.0f min'|format(summary.exercise) }}</strong></div>
+</section>
+<section class="surface chart-surface insights-chart"><div class="section-heading"><div><span class="eyebrow">WEIGHT</span><h2>Your measurements over time</h2></div></div>
+{% if chart.weights|length >= 2 %}<div class="chart-wrap"><canvas id="insightWeightChart" aria-label="Weight over selected dates"></canvas></div><div class="chart-legend"><span><i class="legend-dot mint"></i> Recorded weight</span><span><i class="legend-line"></i> 7-day average</span>{% if chart.goal %}<span><i class="legend-dash"></i> Your goal</span>{% endif %}</div>{% else %}<div class="empty-chart"><span class="empty-icon">⌁</span><strong>Not enough weight entries for a trend yet.</strong><p>Choose a wider date range or add more check-ins.</p></div>{% endif %}</section>
+<section class="content-grid insight-bottom">
+  <article class="surface"><div class="section-heading"><div><span class="eyebrow">SLEEP & WATER</span><h2>Daily rhythm</h2></div></div>{% if daily %}<div class="chart-wrap short-chart"><canvas id="rhythmChart"></canvas></div>{% else %}<p class="muted">Your saved entries will appear here.</p>{% endif %}</article>
+  <article class="surface insight-note"><span class="note-mark">↗</span><h2>Use the data as a journal, not a verdict.</h2><p>These charts summarize only what you entered. They cannot explain why a measurement changed or replace professional guidance.</p><a class="quiet-link" href="{{ url_for('records') }}">Explore your records ↗</a></article>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+const weightData = {{ chart|tojson }};
+const chartOptions = {responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:"#17252b",padding:12}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:8,color:"#78858a"}},y:{grid:{color:"#e8edeb"},ticks:{color:"#78858a"}}}};
+if(weightData.weights.length >= 2) new Chart(document.getElementById("insightWeightChart"),{type:"line",data:{labels:weightData.labels,datasets:[
+{label:"Weight",data:weightData.weights,borderColor:"#39b8a5",backgroundColor:"#39b8a522",pointRadius:3,tension:.28,fill:true,borderWidth:2},
+{label:"7-day average",data:weightData.average,borderColor:"#223c46",pointRadius:0,tension:.35,borderWidth:2.5},
+...(weightData.goal.length?[{label:"Goal",data:weightData.goal,borderColor:"#ed8b73",borderDash:[6,5],pointRadius:0,borderWidth:1.5}]:[])
+]},options:chartOptions});
+const dailyData={{ daily|tojson }};
+if(dailyData.length) new Chart(document.getElementById("rhythmChart"),{type:"bar",data:{labels:dailyData.map(x=>x.day_label),datasets:[
+{label:"Sleep (h)",data:dailyData.map(x=>x.sleep_h),backgroundColor:"#8297eb",borderRadius:6},
+{label:"Water (L)",data:dailyData.map(x=>x.water_l),backgroundColor:"#39b8a5",borderRadius:6}
+]},options:{...chartOptions,scales:{x:{grid:{display:false},ticks:{maxTicksLimit:7}},y:{beginAtZero:true,grid:{color:"#e8edeb"}}}}});
+</script>
+{% endblock %}

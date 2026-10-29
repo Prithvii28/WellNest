@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Goals & profile{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow"><span class="eyebrow-dot"></span> YOUR SPACE</div><h1>Set your own <em>pace.</em></h1><p class="lead">Choose what you want to track. Leave anything blank if it isn’t useful to you.</p></div></div>
+<form method="post" class="settings-layout">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <section class="surface settings-card"><div class="form-section-title"><span class="step-number">01</span><div><h2>About your measurements</h2><p>Used only to calculate the BMI estimate shown in your dashboard.</p></div></div>
+    <label class="field-label">Height <span class="unit">cm</span><input type="number" name="height_cm" min="50" max="260" step="0.1" value="{{ profile.height_cm if profile.height_cm is not none else '' }}" placeholder="e.g. 170"></label>
+  </section>
+  <section class="surface settings-card"><div class="form-section-title"><span class="step-number">02</span><div><h2>Your personal goals</h2><p>WellNest never suggests goals. Enter only the ones you choose.</p></div></div>
+    <div class="field-grid">
+      <label class="field-label">Starting weight <span class="unit">kg</span><input type="number" name="start_weight" min="20" max="300" step="0.1" value="{{ profile.start_weight if profile.start_weight is not none else '' }}" placeholder="Optional"></label>
+      <label class="field-label">Target weight <span class="unit">kg</span><input type="number" name="target_weight" min="20" max="300" step="0.1" value="{{ profile.target_weight if profile.target_weight is not none else '' }}" placeholder="Optional"></label>
+      <label class="field-label">Daily water goal <span class="unit">litres</span><input type="number" name="daily_water_goal_l" min="0" max="15" step="0.1" value="{{ profile.daily_water_goal_l if profile.daily_water_goal_l is not none else '' }}" placeholder="Optional"></label>
+      <label class="field-label">Sleep goal <span class="unit">hours/night</span><input type="number" name="sleep_goal_h" min="0" max="24" step="0.1" value="{{ profile.sleep_goal_h if profile.sleep_goal_h is not none else '' }}" placeholder="Optional"></label>
+      <label class="field-label">Weekly movement goal <span class="unit">minutes</span><input type="number" name="weekly_exercise_goal_min" min="0" max="5000" step="1" value="{{ profile.weekly_exercise_goal_min if profile.weekly_exercise_goal_min is not none else '' }}" placeholder="Optional"></label>
+      <label class="field-label">Daily calorie goal <span class="unit">kcal · optional</span><input type="number" name="calorie_goal" min="0" max="20000" step="1" value="{{ profile.calorie_goal if profile.calorie_goal is not none else '' }}" placeholder="Only if you choose to set one"></label>
+    </div>
+    <div class="form-actions"><button class="button button-primary" type="submit">Save my goals <span>→</span></button></div>
+  </section>
+  <aside class="health-note vertical-note"><span>ⓘ</span><p>BMI is a limited screening measure, not a diagnosis or a complete measure of health. WellNest does not provide medical advice.</p></aside>
+</form>
+{% endblock %}

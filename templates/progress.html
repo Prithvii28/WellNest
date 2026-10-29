@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}My week{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <div><div class="eyebrow"><span class="eyebrow-dot"></span> A MOMENT TO REFLECT</div><h1>Your week, <em>unfolding.</em></h1><p class="lead">Look at your own check-ins and the goals you chose.</p></div>
+  <form class="week-picker" method="get"><label>Choose a week<input type="date" name="week" value="{{ selected }}" max="{{ today.isoformat() }}"></label><button class="button button-outline button-small">Go</button></form>
+</section>
+<div class="date-ribbon"><span>WEEK OF</span><strong>{{ monday.strftime('%b %d') }} — {{ sunday.strftime('%b %d, %Y') }}</strong><span>{{ summary.days_logged }} check-in{{ '' if summary.days_logged == 1 else 's' }}</span></div>
+{% if summary.days_logged %}
+<section class="progress-layout">
+  <article class="surface progress-main"><span class="eyebrow">MOVEMENT</span><div class="big-value">{{ '%.0f'|format(summary.exercise_total) }}<small> min</small></div><p>logged this week</p>
+    {% if profile.weekly_exercise_goal_min %}<div class="progress-track"><span style="width:{{ [100, summary.exercise_total / profile.weekly_exercise_goal_min * 100]|min }}%"></span></div><small class="muted">{{ '%.0f'|format(profile.weekly_exercise_goal_min) }} min personal goal</small>{% else %}<small class="muted">Set your own weekly goal in Goals.</small>{% endif %}
+  </article>
+  <div class="progress-side">
+    <article class="surface mini-measure"><span class="eyebrow">AVG. SLEEP</span><strong>{{ '%.1f h'|format(summary.sleep_avg) if summary.sleep_avg is not none else '—' }}</strong><span>Only days with a value</span></article>
+    <article class="surface mini-measure"><span class="eyebrow">AVG. WATER</span><strong>{{ '%.1f L'|format(summary.water_avg) if summary.water_avg is not none else '—' }}</strong><span>Only days with a value</span></article>
+    <article class="surface mini-measure"><span class="eyebrow">WEIGHT CHANGE</span><strong>{{ '%+.1f kg'|format(summary.weight_change) if summary.weight_change is not none else '—' }}</strong><span>{{ 'From first to last logged weight' if summary.weight_change is not none else 'Need at least two logged weights' }}</span></article>
+  </div>
+</section>
+<section class="surface recent-surface"><div class="section-heading"><div><span class="eyebrow">YOUR CHECK-INS</span><h2>This week’s entries</h2></div></div>
+  {% for row in week %}<div class="recent-item"><span class="recent-date"><b>{{ row.entry_date.strftime('%d') }}</b><small>{{ row.entry_date.strftime('%a') }}</small></span><div class="recent-main"><strong>{{ row.exercise_type or 'Daily check-in' }}</strong><span>{{ '%.0f min movement'|format(row.exercise_min) if row.exercise_min == row.exercise_min and row.exercise_min > 0 else 'No exercise recorded' }}</span></div><div class="recent-value">{{ '%.1f kg'|format(row.weight_kg) if row.weight_kg == row.weight_kg else '—' }}</div></div>{% endfor %}
+</section>
+{% else %}
+<div class="empty-state surface"><span class="empty-icon">✳</span><h2>A fresh week is a blank page.</h2><p>No entries for this week yet. Your check-ins will appear here when you add them.</p><a class="button button-primary" href="{{ url_for('log_entry') }}">Add a check-in →</a></div>
+{% endif %}
+{% endblock %}

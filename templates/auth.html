@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Create account' if mode == 'register' else 'Sign in' }}{% endblock %}
+{% block content %}
+<section class="auth-layout">
+  <div class="auth-intro">
+    <div class="eyebrow"><span class="eyebrow-dot"></span> A calmer way to check in</div>
+    <h1>Your wellbeing,<br><em>in your own rhythm.</em></h1>
+    <p>A private place to notice patterns, keep small promises to yourself, and see your progress over time.</p>
+    <div class="auth-points"><span><b>01</b> Track what matters to you</span><span><b>02</b> See your own patterns</span><span><b>03</b> Keep your records private</span></div>
+  </div>
+  <div class="auth-card">
+    <div class="eyebrow">{{ 'GET STARTED' if mode == 'register' else 'WELCOME BACK' }}</div>
+    <h2>{{ 'Create your space' if mode == 'register' else 'Sign in to WellNest' }}</h2>
+    <p class="muted">{{ 'Your wellness records belong to your account.' if mode == 'register' else 'Pick up where you left off.' }}</p>
+    <form method="post" class="form-stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Email address<input type="email" name="email" autocomplete="email" required maxlength="254" placeholder="you@example.com"></label>
+      <label>Password<input type="password" name="password" autocomplete="{{ 'new-password' if mode == 'register' else 'current-password' }}" required minlength="{{ 10 if mode == 'register' else 1 }}" placeholder="{{ 'At least 10 characters' if mode == 'register' else 'Your password' }}"></label>
+      <button class="button button-primary button-wide" type="submit">{{ 'Create my account' if mode == 'register' else 'Sign in' }} <span>→</span></button>
+    </form>
+    <p class="auth-switch">{{ 'Already have an account?' if mode == 'register' else 'New to WellNest?' }} <a href="{{ url_for('login') if mode == 'register' else url_for('register') }}">{{ 'Sign in' if mode == 'register' else 'Create an account' }}</a></p>
+    <p class="fine-print">Your password is stored as a secure hash. Never reuse a password from another account.</p>
+  </div>
+</section>
+{% endblock %}

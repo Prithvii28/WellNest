@@ -1,0 +1,4 @@
+Flask>=3.0,<4.0
+Flask-WTF>=1.2,<2.0
+pandas>=2.1,<4.0
+gunicorn>=22.0; platform_system != "Windows"

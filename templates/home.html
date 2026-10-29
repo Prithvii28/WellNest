@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Overview{% endblock %}
+{% block content %}
+<section class="welcome-row">
+  <div><div class="eyebrow"><span class="eyebrow-dot"></span> YOUR PERSONAL WELLNESS SPACE</div><h1>Make room for <em>you.</em></h1><p class="lead">A little check-in can tell you a lot. Here’s where you are today.</p></div>
+  <a class="button button-primary" href="{{ url_for('log_entry') }}"><span class="plus">＋</span> Log today <span>→</span></a>
+</section>
+
+<section class="overview-grid">
+  <div class="wellbeing-panel">
+    <div class="panel-top"><div><span class="eyebrow">TODAY · {{ today.strftime('%A, %B %d') }}</span><h2>Your day, at a glance</h2></div><span class="sun-mark">✳</span></div>
+    {% if today_row %}
+    <div class="today-details">
+      <div><span>Sleep</span><strong>{{ '%.1f'|format(today_row.sleep_h) if today_row.sleep_h == today_row.sleep_h else '—' }}<small> h</small></strong></div>
+      <div><span>Water</span><strong>{{ '%.1f'|format(today_row.water_l) if today_row.water_l == today_row.water_l else '—' }}<small> L</small></strong></div>
+      <div><span>Movement</span><strong>{{ '%.0f'|format(today_row.exercise_min) if today_row.exercise_min == today_row.exercise_min else '—' }}<small> min</small></strong></div>
+    </div>
+    {% else %}
+    <p class="panel-copy">Your day is still unwritten. Add a quick check-in whenever you’re ready.</p>
+    <a class="inline-link" href="{{ url_for('log_entry') }}">Start today’s check-in <span>↗</span></a>
+    {% endif %}
+    <div class="panel-bottom"><span class="soft-badge">{{ entry_count }} {{ 'entry' if entry_count == 1 else 'entries' }} saved</span><span class="muted">Your data, at your pace</span></div>
+  </div>
+  <div class="streak-panel">
+    <span class="eyebrow">SHOWING UP</span><div class="streak-number">{{ streak }}<span>day{{ '' if streak == 1 else 's' }}</span></div>
+    <p>workout streak</p><div class="streak-spark">✳</div><span class="small-muted">Consecutive days with logged movement</span>
+  </div>
+</section>
+
+<section class="measure-row">
+  <article class="measure">
+    <span class="measure-icon">↗</span><span class="eyebrow">LATEST WEIGHT</span>
+    <strong>{{ '%.1f'|format(weight) if weight is not none else '—' }}<small>{{ ' kg' if weight is not none else '' }}</small></strong>
+    <span class="measure-note">{{ weight_date.strftime('%b %d') if weight_date else 'Log a weight to begin' }}</span>
+  </article>
+  <article class="measure">
+    <span class="measure-icon">◌</span><span class="eyebrow">BMI ESTIMATE</span>
+    <strong>{{ '%.1f'|format(bmi) if bmi is not none else '—' }}</strong>
+    <span class="measure-note">A limited screening measure</span>
+  </article>
+  <article class="measure">
+    <span class="measure-icon">⌁</span><span class="eyebrow">WEEKLY MOVEMENT</span>
+    <strong>{{ '%.0f'|format(exercise_week) }}<small> min</small></strong>
+    <span class="measure-note">This week so far</span>
+  </article>
+  <article class="measure goal-measure">
+    <span class="measure-icon">◎</span><span class="eyebrow">YOUR WEIGHT GOAL</span>
+    {% if profile.target_weight is not none %}<strong>{{ '%.1f'|format(profile.target_weight) }}<small> kg</small></strong><span class="measure-note">{{ '%.0f'|format(goal_progress * 100) ~ '% of your path' if goal_progress is not none else 'Add a starting weight to see progress' }}</span>
+    {% else %}<strong class="goal-empty">Not set</strong><a class="measure-note inline-link" href="{{ url_for('profile') }}">Choose your own goal →</a>{% endif %}
+  </article>
+</section>
+
+<section class="content-grid">
+  <article class="surface chart-surface">
+    <div class="section-heading"><div><span class="eyebrow">OVER TIME</span><h2>Your weight story</h2><p class="muted">Your measurements with a rolling 7-day average.</p></div><a class="quiet-link" href="{{ url_for('insights') }}">All insights ↗</a></div>
+    {% if chart.weights|length >= 2 %}<div class="chart-wrap"><canvas id="weightChart" aria-label="Weight measurements and rolling average over time"></canvas></div>{% else %}<div class="empty-chart"><span class="empty-icon">⌁</span><strong>Your chart starts with your check-ins.</strong><p>Log at least two weights to see a trend over time.</p><a class="inline-link" href="{{ url_for('log_entry') }}">Add a check-in →</a></div>{% endif %}
+    <div class="chart-legend"><span><i class="legend-dot mint"></i> Recorded weight</span><span><i class="legend-line"></i> 7-day average</span>{% if profile.target_weight is not none %}<span><i class="legend-dash"></i> Your goal</span>{% endif %}</div>
+  </article>
+  <article class="surface week-card">
+    <div class="section-heading"><div><span class="eyebrow">THIS WEEK</span><h2>Small steps count</h2></div><a class="quiet-link" href="{{ url_for('progress') }}">Details ↗</a></div>
+    <div class="week-stat"><div><span>Movement</span><strong>{{ '%.0f'|format(exercise_week) }} <small>min</small></strong></div>{% if profile.weekly_exercise_goal_min %}<span class="goal-chip">of {{ '%.0f'|format(profile.weekly_exercise_goal_min) }} min</span>{% endif %}</div>
+    {% if profile.weekly_exercise_goal_min %}<div class="progress-track"><span style="width: {{ [100, exercise_week / profile.weekly_exercise_goal_min * 100]|min }}%"></span></div>{% endif %}
+    <div class="mini-stats"><div><span>Avg. sleep</span><b>{{ '%.1f h'|format(sleep_avg) if sleep_avg is not none else '—' }}</b></div><div><span>Avg. water</span><b>{{ '%.1f L'|format(water_avg) if water_avg is not none else '—' }}</b></div></div>
+    <a class="button button-outline button-wide" href="{{ url_for('progress') }}">See weekly progress <span>→</span></a>
+  </article>
+</section>
+
+<section class="surface recent-surface">
+  <div class="section-heading"><div><span class="eyebrow">YOUR JOURNAL</span><h2>Recent check-ins</h2></div><a class="quiet-link" href="{{ url_for('records') }}">View records ↗</a></div>
+  {% if recent %}<div class="recent-list">{% for row in recent %}<div class="recent-item"><span class="recent-date"><b>{{ row.entry_date.strftime('%d') }}</b><small>{{ row.entry_date.strftime('%b') }}</small></span><div class="recent-main"><strong>{{ row.exercise_type if row.exercise_type else 'Daily check-in' }}</strong><span>{{ '%.0f min movement'|format(row.exercise_min) if row.exercise_min == row.exercise_min and row.exercise_min > 0 else 'A moment for yourself' }}</span></div><div class="recent-value">{{ '%.1f kg'|format(row.weight_kg) if row.weight_kg == row.weight_kg else '—' }}</div><a class="row-arrow" href="{{ url_for('edit_entry', entry_id=row.id) }}" aria-label="Edit entry">↗</a></div>{% endfor %}</div>
+  {% else %}<div class="empty-inline"><span>✳</span><div><strong>Your journal is ready when you are.</strong><p>Check-ins are private to your account and only appear after you add them.</p></div><a class="button button-outline" href="{{ url_for('log_entry') }}">Add first entry →</a></div>{% endif %}
+</section>
+<div class="health-note"><span>ⓘ</span><p>WellNest is a personal tracking tool, not a medical service. BMI is a limited screening measure and is not a diagnosis.</p></div>
+{% endblock %}
+{% block scripts %}
+{% if chart.weights|length >= 2 %}
+<script>
+const weightData = {{ chart|tojson }};
+const ctx = document.getElementById("weightChart");
+new Chart(ctx, {
+  type: "line",
+  data: { labels: weightData.labels, datasets: [
+    {label:"Recorded weight", data:weightData.weights, borderColor:"#39b8a5", backgroundColor:"#39b8a522", pointBackgroundColor:"#39b8a5", pointRadius:3, tension:.28, borderWidth:2, fill:true},
+    {label:"7-day average", data:weightData.average, borderColor:"#223c46", pointRadius:0, tension:.35, borderWidth:2.5},
+    ...(weightData.goal.length ? [{label:"Your goal", data:weightData.goal, borderColor:"#ed8b73", borderDash:[6,5], pointRadius:0, borderWidth:1.5}] : [])
+  ]},
+  options: {responsive:true, maintainAspectRatio:false, interaction:{mode:"index",intersect:false}, plugins:{legend:{display:false}, tooltip:{backgroundColor:"#17252b", padding:12}}, scales:{x:{grid:{display:false}, ticks:{maxTicksLimit:7,color:"#78858a"}},y:{grid:{color:"#e8edeb"},ticks:{color:"#78858a"},title:{display:true,text:"kg",color:"#78858a"}}}}
+});
+</script>
+{% endif %}
+{% endblock %}

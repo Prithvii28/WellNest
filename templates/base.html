@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17252b">
+  <title>{% block title %}WellNest{% endblock %} · WellNest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('home') if nav_user else url_for('login') }}"><span class="brand-mark">w.</span><span>wellnest</span></a>
+    {% if nav_user %}
+    <button class="menu-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="main-nav">☰</button>
+    <nav class="main-nav" id="main-nav">
+      <a class="{{ 'active' if request.endpoint == 'home' else '' }}" href="{{ url_for('home') }}">Overview</a>
+      <a class="{{ 'active' if request.endpoint == 'progress' else '' }}" href="{{ url_for('progress') }}">My week</a>
+      <a class="{{ 'active' if request.endpoint == 'mood_journal' else '' }}" href="{{ url_for('mood_journal') }}">Mood journal</a>
+      <a class="{{ 'active' if request.endpoint in ['care_planner', 'toggle_appointment', 'delete_appointment'] else '' }}" href="{{ url_for('care_planner') }}">Care planner</a>
+      <a class="{{ 'active' if request.endpoint == 'insights' else '' }}" href="{{ url_for('insights') }}">Insights</a>
+      <a class="{{ 'active' if request.endpoint == 'records' else '' }}" href="{{ url_for('records') }}">Records</a>
+      <a class="{{ 'active' if request.endpoint == 'data_tools' else '' }}" href="{{ url_for('data_tools') }}">Data tools</a>
+      <a class="{{ 'active' if request.endpoint == 'profile' else '' }}" href="{{ url_for('profile') }}">Goals</a>
+      <form class="nav-logout" method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit">Sign out</button></form>
+    </nav>
+    <div class="account-menu"><span class="avatar">{{ nav_user.email[0]|upper }}</span><span class="account-email">{{ nav_user.email }}</span><form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="text-button">Sign out</button></form></div>
+    {% else %}
+    <nav class="guest-nav"><a href="{{ url_for('about') }}">About</a><a class="button button-small" href="{{ url_for('login') }}">Sign in</a></nav>
+    {% endif %}
+  </header>
+  <main class="page-shell">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}<div class="flash-stack">{% for category, message in messages %}<div class="flash {{ category }}" role="status">{{ message }}<button aria-label="Dismiss" onclick="this.parentElement.remove()">×</button></div>{% endfor %}</div>{% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="site-footer"><span>WellNest · A personal wellness journal</span><a href="{{ url_for('about') }}">About this project</a></footer>
+  <script>
+    const menuToggle = document.querySelector(".menu-toggle");
+    if (menuToggle) menuToggle.addEventListener("click", () => {
+      const nav = document.querySelector("#main-nav");
+      const open = nav.classList.toggle("open");
+      menuToggle.setAttribute("aria-expanded", String(open));
+    });
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
